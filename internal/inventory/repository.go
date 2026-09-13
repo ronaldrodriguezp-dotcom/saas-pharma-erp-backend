@@ -39,10 +39,18 @@ func (r *Repository) CreateMovement(batchID int, movementType string, quantity i
 
 // Obtener stock actual
 func (r *Repository) GetStocks() ([]Batch, error) {
-	rows, err := r.db.Query("SELECT id, product_id, lot_number, expiration_date, quantity, created_at FROM batches")
-	if err != nil {
-		return nil, err
-	}
+    if r.db == nil {
+        return nil, fmt.Errorf("DB no inicializada")
+    }
+
+    rows, err := r.db.Query("SELECT id, product_id, lot_number, expiration_date, quantity, created_at FROM batches")
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    // ...
+}
+
 	defer rows.Close()
 
 	var batches []Batch
