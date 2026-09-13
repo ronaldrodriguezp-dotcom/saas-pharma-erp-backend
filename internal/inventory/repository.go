@@ -38,27 +38,11 @@ func (r *Repository) CreateMovement(batchID int, movementType string, quantity i
 }
 
 // Obtener stock actual
-// Obtener stock actual
 func (r *Repository) GetStocks() ([]Batch, error) {
-    rows, err := r.db.Query("SELECT id, product_id, lot_number, expiration_date, quantity, created_at FROM batches")
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-
-    var batches []Batch
-    for rows.Next() {
-        var b Batch
-        if err := rows.Scan(&b.ID, &b.ProductID, &b.LotNumber, &b.ExpirationDate, &b.Quantity, &b.CreatedAt); err != nil {
-            return nil, err
-        }
-        batches = append(batches, b)
-    }
-
-    return batches, nil
-}
-
-
+	rows, err := r.db.Query("SELECT id, product_id, lot_number, expiration_date, quantity, created_at FROM batches")
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
 	var batches []Batch
@@ -69,5 +53,6 @@ func (r *Repository) GetStocks() ([]Batch, error) {
 		}
 		batches = append(batches, b)
 	}
+
 	return batches, nil
 }
