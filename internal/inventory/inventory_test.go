@@ -1,30 +1,53 @@
 package inventory_test
 
 import (
-	"fortiasaass-kio-speed/internal/inventory"
 	"testing"
+	"time"
+
+	"fortiasaass-kio-speed/internal/inventory"
 )
 
-type mockDB struct{}
+// fakeRepo simula el comportamiento de Repository para pruebas unitarias.
+type fakeRepo struct{}
 
-func (m *mockDB) Exec(query string, args ...interface{}) (interface{}, error) {
-	return nil, nil
-}
-
-func (m *mockDB) Query(query string, args ...interface{}) ([]inventory.Batch, error) {
+func (f *fakeRepo) GetStocks() ([]inventory.Batch, error) {
 	return []inventory.Batch{
-		{ID: 1, ProductID: 101, LotNumber: "L001"},
+		{
+			ID:             1,
+			ProductID:      101,
+			LotNumber:      "L001",
+			ExpirationDate: time.Now().AddDate(0, 6, 0),
+			Quantity:       50,
+			CreatedAt:      time.Now(),
+		},
+		{
+			ID:             2,
+			ProductID:      102,
+			LotNumber:      "L002",
+			ExpirationDate: time.Now().AddDate(0, 3, 0),
+			Quantity:       20,
+			CreatedAt:      time.Now(),
+		},
 	}, nil
 }
 
-func TestGetStocks(t *testing.T) {
-	repo := &inventory.Repository{} // aquí deberías inyectar mockDB si tu struct lo permite
+func TestGetStocksReturnsExpectedBatches(t *testing.T) {
+	var repo interface {
+		GetStocks() ([]inventory.Batch, error)
+	} = &fakeRepo{}
 
 	stocks, err := repo.GetStocks()
 	if err != nil {
-		t.Fatalf("Error inesperado: %v", err)
+		t.Fatalf("GetStocks devolvió error inesperado: %v", err)
 	}
-	if len(stocks) == 0 {
-		t.Errorf("Se esperaba al menos un lote")
+	if len(stocks) != 2 {
+		t.Fatalf("Se esperaban 2 lotes, se obtuvieron %d", len(stocks))
+	}
+
+	if stocks[0].LotNumber != "L001" {
+		t.Errorf("Esperado LotNumber L001, obtenido %s", stocks[0].LotNumber)
+	}
+	if stocks[0].Quantity <= 0 {
+		t.Errorf("Esperado quantity > 0, obtenido %d", stocks[0].Quantity)
 	}
 }
