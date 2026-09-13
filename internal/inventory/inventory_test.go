@@ -1,7 +1,7 @@
-package tests
+package inventory_test
 
 import (
-	"backend/internal/inventory"
+	"fortiasaass-kio-speed/internal/inventory"
 	"testing"
 )
 
